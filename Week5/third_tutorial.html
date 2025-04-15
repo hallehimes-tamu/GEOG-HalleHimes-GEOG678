@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Custom Icons Tutorial</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+    <style>
+        /* Make the map fullscreen */
+        html, body, #map {
+            height: 100%;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+    <script>
+        // Initialize the map and set the view
+        var map = L.map('map').setView([51.5, -0.09], 13);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Define custom icons
+        var greenIcon = L.icon({
+            iconUrl: 'leaf-green.png',
+            shadowUrl: 'leaf-shadow.png',
+            iconSize: [38, 95], // Icon size
+            shadowSize: [50, 64], // Shadow size
+            iconAnchor: [22, 94], // Anchor point of the icon
+            shadowAnchor: [4, 62], // Anchor point of the shadow
+            popupAnchor: [-3, -76] // Popup relative to icon
+        });
+
+        // Place a green leaf marker
+        L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map)
+            .bindPopup("I am a green leaf.");
+
+        // Define an icon class
+        var LeafIcon = L.Icon.extend({
+            options: {
+                shadowUrl: 'leaf-shadow.png',
+                iconSize: [38, 95],
+                shadowSize: [50, 64],
+                iconAnchor: [22, 94],
+                shadowAnchor: [4, 62],
+                popupAnchor: [-3, -76]
+            }
+        });
+
+        // Create additional icons
+        var redIcon = new LeafIcon({iconUrl: 'leaf-red.png'}),
+            orangeIcon = new LeafIcon({iconUrl: 'leaf-orange.png'});
+
+        // Place markers with custom icons
+        L.marker([51.495, -0.083], {icon: redIcon}).addTo(map)
+            .bindPopup("I am a red leaf.");
+        L.marker([51.49, -0.1], {icon: orangeIcon}).addTo(map)
+            .bindPopup("I am an orange leaf.");
+    </script>
+
+</body>
+</html>

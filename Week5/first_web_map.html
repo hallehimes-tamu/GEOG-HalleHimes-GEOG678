@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Halle's First Web Map</title> <!-- Webpage Title -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+    <style>
+        html, body { height: 100%; margin: 0; }
+        #map { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <script>
+        // Initialize the map
+        var map = L.map('map').fitWorld();
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // TAMU landmark coordinates
+        var kyleField = [30.6084, -96.3402];
+        var omBuilding = [30.6179, -96.3386];
+        var academicBuilding = [30.6159, -96.3413];
+
+        // Try to locate the user
+        map.locate({setView: true, maxZoom: 16});
+
+        // Location found event handler
+        function onLocationFound(e) {
+            var radius = e.accuracy;
+
+            // Place marker at user's location
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are within " + radius.toFixed(2) + " meters from this point").openPopup();
+
+            // Draw accuracy circle
+            L.circle(e.latlng, radius).addTo(map);
+        }
+
+        // Location error event handler
+        function onLocationError(e) {
+            // If geolocation fails, center on Kyle Field
+            map.setView(kyleField, 15);
+            alert("Location access denied or unavailable. Centered on Kyle Field.");
+        }
+
+        // Register event handlers
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+        // 🎯 Create a circle around Kyle Field with a popup
+        L.circle(kyleField, {
+            color: 'blue',
+            fillColor: '#30A2FF',
+            fillOpacity: 0.5,
+            radius: 500
+        }).addTo(map).bindPopup("Kyle Field - Home of the Aggies!");
+
+        // 🔥 Define a custom icon class for landmark markers
+        var CustomIcon = L.Icon.extend({
+            options: {
+                iconSize: [38, 95], shadowSize: [50, 64],
+                iconAnchor: [22, 94], shadowAnchor: [4, 62],
+                popupAnchor: [-3, -76]
+            }
+        });
+
+        // Create custom icons using "leaf-red.png" & "geography.png"
+        var oMIcon = new CustomIcon({iconUrl: 'leaf-red.png'}),
+            academicIcon = new CustomIcon({iconUrl: 'geography.png'});
+
+        // 🏢 Place markers for O&M Building and Academic Building
+        L.marker(omBuilding, {icon: oMIcon}).addTo(map)
+            .bindPopup("O&M Building - Meteorology, Geography, and More!");
+        L.marker(academicBuilding, {icon: academicIcon}).addTo(map)
+            .bindPopup("Academic Building - A Texas A&M Landmark!");
+
+        // 🖱 Click event to show coordinates in a popup
+        var popup = L.popup();
+        function onMapClick(e) {
+            popup.setLatLng(e.latlng)
+                .setContent("You clicked at " + e.latlng.toString())
+                .openOn(map);
+        }
+        map.on('click', onMapClick);
+
+    </script>
+</body>
+</html>
