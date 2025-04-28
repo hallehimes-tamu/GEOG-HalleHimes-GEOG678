@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Halle Himes TAMU Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .info {
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Halle Himes TAMU Map</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Include the local tamubuildings-2.js file -->
+    <script src="./tamubuildings-2.js"></script>
+    <script>
+        // Initialize the map and set view to TAMU Campus
+        const map = L.map('map').setView([30.6185, -96.3424], 16);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add GeoJSON layer
+        const buildingLayer = L.geoJSON(tamubuildings, { // Reference tamubuildings variable from tamubuildings-2.js
+            style: function () {
+                return { color: 'maroon' }; // Set building color
+            },
+            onEachFeature: function (feature, layer) {
+                // Highlight buildings visually on hover
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 5, color: 'red' });
+                });
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, color: 'maroon' });
+                });
+
+                // Zoom to building on click
+                layer.on('click', function () {
+                    map.fitBounds(layer.getBounds());
+                });
+            }
+        }).addTo(map);
+
+        // Add Info Control
+        const info = L.control();
+
+        info.onAdd = function () {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (properties) {
+            this._div.innerHTML = properties
+                ? `<h4>Building Details</h4>
+                   <p>Name: ${properties.name}</p>
+                   <p>Abbreviation: ${properties.abbr}</p>`
+                : 'Hover over a building';
+        };
+
+        info.addTo(map);
+
+        // Update Info Control on hover
+        buildingLayer.eachLayer(function (layer) {
+            layer.on('mouseover', function () {
+                info.update(layer.feature.properties);
+            });
+            layer.on('mouseout', function () {
+                info.update();
+            });
+        });
+    </script>
+</body>
+</html>
